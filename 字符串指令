@@ -1,0 +1,58 @@
+data        segment
+        message1   db     'a string for testing.', 0dh, 0ah,'$'
+        return1    db     'Found$'
+        return2    db     'Not Found$'
+        ture       db     'ture$'
+        false      db     'false$'
+data    ends
+extra   segment 
+        massage2   db      50 dup(?),'ss''$'
+extra   ends
+code    segment
+        assume CS:code,ds: data,es : extra 
+start:  mov ax,data
+        mov ds,ax
+        mov ax,extra
+        mov es,ax
+        lea si,message1
+        lea di,massage2
+        mov cx,23
+        cld
+        rep movsb
+        lea di,massage2
+        mov al,'s'
+        mov cx,23
+        cld
+        repne scasb
+        jnz j1
+        mov dx,offset return1
+        mov ah,09
+        int 21h
+        jmp exit
+j1:     mov dx,offset return2
+        mov ah,09
+        int 21h
+        jmp exit
+j2:     mov ah,02
+        mov dl,0dh
+        int 21h
+        mov ah,02
+        mov dl,0ah
+        int 21h
+        lea si,message1
+        lea di,massage2 
+        mov cx,23
+        cld
+        rep cmpsb
+        jnz j3
+        mov dx,offset ture
+        mov ah,09
+        int 21h
+        jmp exit
+j3:     mov dx,offset false
+        mov ah,09
+        int 21h
+exit:   mov ah,4ch
+        int 21h
+code    ends
+        end start
